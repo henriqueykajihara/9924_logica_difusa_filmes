@@ -1,0 +1,3 @@
+BAIXA: {"luminosidade": 80, "presenca": 0, "temperatura": 10, "preferencia": 0} 
+MEDIA: {"luminosidade": 40, "presenca": 0, "temperatura": 10, "preferencia": 0.5} 
+ALTA.: {"luminosidade": 10, "presenca": 90, "temperatura": 30, "preferencia": 50} 

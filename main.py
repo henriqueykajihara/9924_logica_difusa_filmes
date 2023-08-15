@@ -1,31 +1,43 @@
-from importa_filmes import download_filmes
-from processa_recomendacoes import recomendacoes
+from flask import Flask, request, jsonify
+from luminosidade import controla_luminosidade
+
+app = Flask(__name__)
+#********************************************************************************#
+def opcao_manual_valida(opcao):
+    return (opcao in ['0', '1', '2', '3'] )
 
 #********************************************************************************#
-def opcaoValida(opcao):
-    return (opcao in ['0', '1', '2'] )
-#********************************************************************************#
 def main():
-    
-    opcao = 99
+    opcao = '99'
     while opcao != '0':
 
         print('+--------------------------------------------------+')
-        print('+---------     Recomendações de Filmes     --------+')
+        print('+---------    Controle de Luminosidade     --------+')
         print('+--------------------------------------------------+')
         print('+ Selecione:                                       +')
-        print('+ 1 - Recomendações                                +')
-        print('+ 2 - Importar banco de dados                      +')
+        print('+ 1 - Baixa                                        +')
+        print('+ 2 - Média                                        +')
+        print('+ 3 - Alta                                         +')
         print('+ 0 - Sair                                         +')
         print('+--------------------------------------------------+')
         opcao = input('Selecione uma opção ou digite ZERO para sair: ')
         print('+--------------------------------------------------+\n')
-        if opcaoValida(opcao):
+        if opcao_manual_valida(opcao):
 
             if opcao == '1':
-                recomendacoes()
+                print( 'Definindo nível de intensidade para: ' )
+                intensidade, nivel = controla_luminosidade(80, 0, 10, 0 )
+                print(nivel, intensidade)
+
             elif opcao == '2':
-                download_filmes()
+                print( 'Definindo nível de intensidade para: ' )
+                intensidade, nivel = controla_luminosidade(50, 50, 10, 0.2 )
+                print(nivel, intensidade)
+                
+            elif opcao == '3':
+                print( 'Definindo nível de intensidade para: ' )
+                intensidade, nivel = controla_luminosidade(10, 90, 30, 50)
+                print(nivel, intensidade)
 
             else:
                 print(" --- Fim do programa ---")
@@ -36,5 +48,4 @@ def main():
 
 #********************************************************************************#
 if __name__ == "__main__":
-    
     main()

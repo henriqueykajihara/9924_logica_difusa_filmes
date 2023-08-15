@@ -5,8 +5,6 @@ def conecta_banco():
     conexao = sqlite3.connect('banco_filmes.db' )#, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES, foreign_keys=True)
     return conexao
     
-#def desconecta_banco(conexao):
-#     return conexao.close()
 #********************************************************************************#
 def cria_tabelas():
      if tabela_existe('filmes'):
@@ -115,12 +113,10 @@ def insere_filme(filme):
           cursor.execute('''INSERT OR IGNORE INTO filme_genero (filme_id, genero_id) 
           VALUES (?, ?)''', (filme_id, genero_id))
 
-     
-     #print(filme)
-
      conexao.commit()
      conexao.close()
      return True
+
 #********************************************************************************#
 def tabela_existe(nome_tabela):
      conexao = conecta_banco()
@@ -132,54 +128,21 @@ def tabela_existe(nome_tabela):
      return tabela is not None     
 
 #********************************************************************************#
-def carregar_filme_por_id(filme_id):
-    conexao = conecta_banco()
-    cursor = conexao.cursor()
-
-    query = '''
-        SELECT filme.id, filme.titulo, filme.ano, filme.nota,
-        GROUP_CONCAT(g.nome, ', ') AS generos,
-        GROUP_CONCAT(d.nome, ', ') AS diretores,
-        GROUP_CONCAT(e.nome, ', ') AS elenco
-        FROM filmes AS filme
-        LEFT JOIN filme_genero fg ON filme.id = fg.filme_id
-        LEFT JOIN generos g ON fg.genero_id = g.id
-        LEFT JOIN filme_diretor fd ON filme.id = fd.filme_id
-        LEFT JOIN diretores d ON fd.diretor_id = d.id
-        LEFT JOIN filme_elenco fe ON filme.id = fe.filme_id
-        LEFT JOIN elenco e ON fe.elenco_id = e.id
-        WHERE filme.id = ?
-        GROUP BY filme.id
-    '''
-
-    cursor.execute(query, (filme_id,))
-    row = cursor.fetchone()
-
-    conexao.close()
-
-    if row:
-        id, titulo, ano, nota, generos, diretores, elenco = row
-        generos = generos.split(', ') if generos else []
-        diretores = diretores.split(', ') if diretores else []
-        elenco = elenco.split(', ') if elenco else []
-        return Filme(id, titulo, ano, generos, diretores, nota, elenco)
-    else:
-        return None
-    
-#********************************************************************************#
-def mostra_generos_banco():
+def mostra_generos_banco(gambiarra):
     conexao = conecta_banco()
     cursor = conexao.cursor()
     query = '''
         SELECT *
         FROM generos
     '''
-    print(query)
+
     cursor.execute(query)
     row = cursor.fetchall()
 
     conexao.close()
     generos = []
+    if gambiarra:
+        generos.append('')
     if row:
         for genero in row:
             generos.append(genero[1])
@@ -270,6 +233,7 @@ def carrega_elenco_por_id(id_filme, cursor):
 
 #********************************************************************************#
 def carrega_filmes_por_genero(genero_selecionado):
+
     conexao = conecta_banco()
     cursor = conexao.cursor()
     print("Genero selecionado: "+ genero_selecionado)
@@ -299,3 +263,139 @@ def carrega_filmes_por_genero(genero_selecionado):
         for id_genero in row:
             id_generos.append(id_genero[0])
     conexao.close()
+    
+    lista_filmes = []
+    for id_filme in id_generos:
+        lista_filmes.append(carrega_filme_por_id(id_filme))
+
+    return lista_filmes
+
+#********************************************************************************#
+def carrega_filmes_por_avaliacao(avaliacao):
+
+    conexao = conecta_banco()
+    cursor = conexao.cursor()
+    avaliacao_minimo = str(avaliacao - 1)
+    avaliacao_maximo = str(avaliacao + 1)
+    
+    query = '''
+        SELECT id
+        FROM filmes
+        WHERE nota >= '''+ avaliacao_minimo +''' and nota <= '''+ avaliacao_maximo +'''
+    '''
+
+    cursor.execute(query)
+    row = cursor.fetchall()
+
+    lista_filmes = []
+    if row:
+        for id in row:
+            lista_filmes.append(carrega_filme_por_id(id[0]))
+    conexao.close()            
+
+    return lista_filmes
+
+#********************************************************************************#
+def ator_existe(ator):
+    
+    conexao = conecta_banco()
+    cursor = conexao.cursor()
+    print('\n Procurando filmes do :' + ator + '\n')
+    query = '''
+        SELECT id
+        FROM elenco
+        WHERE nome= "'''+ ator +'''"
+    '''
+    cursor.execute(query)
+    row = cursor.fetchone()
+    conexao.close()            
+
+    if row:
+        return True, row[0]
+    return False, 0
+
+#********************************************************************************#
+def carrega_filmes_por_elenco(id_ator):
+    
+    conexao = conecta_banco()
+    cursor = conexao.cursor()
+    
+    query = '''
+        SELECT filme_id
+        FROM filme_elenco
+        WHERE elenco_id= '''+ str(id_ator) +'''
+    '''
+    print('\n')
+    print(query)
+    print('\n')
+    cursor.execute(query)
+    row = cursor.fetchall()
+    conexao.close()       
+    lista_filmes = []
+    if row:
+        for id_filme in row:
+            lista_filmes.append(carrega_filme_por_id(id_filme[0]))
+
+    return lista_filmes
+
+#********************************************************************************#
+#def ranking_elenco():
+
+
+
+#********************************************************************************#
+def diretor_existe(diretor):
+    
+    conexao = conecta_banco()
+    cursor = conexao.cursor()
+    
+    query = '''
+        SELECT id
+        FROM diretores
+        WHERE nome= "'''+ diretor +'''"
+    '''
+    cursor.execute(query)
+    row = cursor.fetchone()
+    conexao.close()       
+    if row:
+        return True, row[0]
+    return False, 0
+
+#********************************************************************************#
+def carrega_filmes_por_diretor(id_diretor):
+
+    conexao = conecta_banco()
+    cursor = conexao.cursor()
+    
+    query = '''
+        SELECT filme_id
+        FROM filme_diretor
+        WHERE diretor_id= '''+ str(id_diretor) +'''
+    '''
+    cursor.execute(query)
+    row = cursor.fetchall()
+
+    lista_filmes = []
+    if row:
+        for id_filme in row:
+            lista_filmes.append(carrega_filme_por_id(id_filme[0]))
+
+    return lista_filmes
+#********************************************************************************#
+def pega_id_genero(genero):
+
+    conexao = conecta_banco()
+    cursor = conexao.cursor()
+    query = '''
+    SELECT id
+    FROM generos
+    WHERE nome=?;
+    '''
+
+    cursor.execute(query, (genero,))
+    row = cursor.fetchone()
+    conexao.close()       
+    if row:
+        return row[0]
+
+    return 0
