@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from luminosidade import controla_luminosidade
+import os
 
 app = Flask(__name__)
 #********************************************************************************#
@@ -10,7 +11,7 @@ def opcao_manual_valida(opcao):
 def main():
     opcao = '99'
     while opcao != '0':
-
+        os.system('cls')
         print('+--------------------------------------------------+')
         print('+---------    Controle de Luminosidade     --------+')
         print('+--------------------------------------------------+')
@@ -28,16 +29,17 @@ def main():
                 print( 'Definindo nível de intensidade para: ' )
                 intensidade, nivel = controla_luminosidade(80, 0, 10, 0 )
                 print(nivel, intensidade)
-
+                input('Pressione enter para continuar...')
             elif opcao == '2':
                 print( 'Definindo nível de intensidade para: ' )
                 intensidade, nivel = controla_luminosidade(50, 50, 10, 0.2 )
                 print(nivel, intensidade)
-                
+                input('Pressione enter para continuar...')
             elif opcao == '3':
                 print( 'Definindo nível de intensidade para: ' )
                 intensidade, nivel = controla_luminosidade(10, 90, 30, 50)
                 print(nivel, intensidade)
+                input('Pressione enter para continuar...')
 
             else:
                 print(" --- Fim do programa ---")

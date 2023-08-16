@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from luminosidade import controla_luminosidade
+import os
 
 app = Flask(__name__)
 #********************************************************************************#
@@ -27,4 +28,5 @@ def controle_api():
 
 #********************************************************************************#
 if __name__ == "__main__":
+    #os.system('cls')
     controle_api()

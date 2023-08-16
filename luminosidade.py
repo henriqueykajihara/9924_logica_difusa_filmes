@@ -63,6 +63,6 @@ def controla_luminosidade(input_luminosidade, input_presenca, input_temperatura,
         resultado_intensidade = "media"
     else:
         resultado_intensidade = "alta"
-    #plt.show()
+    plt.show()
     return simulacao_intensidade.output['intensidade'], resultado_intensidade
 
